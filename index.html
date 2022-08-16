@@ -10,7 +10,8 @@
             "imports": {
               "three": "https://unpkg.com/three@0.143.0/build/three.module.js",
               "GLTFLoader" : "https://unpkg.com/three@0.143.0/examples/jsm/loaders/GLTFLoader.js",
-              "OrbitControls" : "https://unpkg.com/three@0.143.0/examples/jsm/controls/OrbitControls.js"
+              "OrbitControls" : "https://unpkg.com/three@0.143.0/examples/jsm/controls/OrbitControls.js",
+              "Water2":"https://unpkg.com/three@0.143.0/examples/jsm/objects/Water2.js"
             }
           }
     </script>
@@ -24,10 +25,18 @@
             width:100vw;
             height: 100vh;
         }
+        .pages{
+            position: absolute;
+            left: 0;
+            top: 0;
+            color:#fff;
+        }
     </style>
 </head>
 <body>
     <div class="bg">
     </div>
+
+    <a class="pages" href="animation.html">다음 페이지</a>
 </body>
 </html>
