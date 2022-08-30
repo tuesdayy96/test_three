@@ -60,7 +60,7 @@ function main(){
             })
         })
 
-        currentAction = animationMap['Roll'];
+        currentAction = animationMap['Idle'];
         currentAction.play(); 
     }
 
