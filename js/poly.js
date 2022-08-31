@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'GLTFLoader';
-import {OrbitControls} from 'OrbitControls';
+// import {OrbitControls} from 'OrbitControls';
 
-let camera;
+let mixer,model;
 main();
 function main(){
     const canvas = document.querySelector('.bg');
@@ -12,7 +12,8 @@ function main(){
     canvas.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xffffff);
+    scene.background = new THREE.Color(0x313131);
+    scene.fog = new THREE.FogExp2(0x313131, 0.001)
 
     const fov = 45;
     const width = canvas.clientWidth;
@@ -24,20 +25,50 @@ function main(){
     scene.add(camera)
 
     const loader = new GLTFLoader();
-    loader.load('../data/tvs.glb',(gltf)=>{
-        const model = gltf.scene;
+    loader.load('./data/tvs.glb',(gltf)=>{
+        model = gltf.scene;
         scene.add(model);
 
         zoomAuto(model, camera);
+
+        mixer = new THREE.AnimationMixer(model)
+        const clips = gltf.animations;
+        console.log(mixer);
+        const clip = THREE.AnimationClip.findByName(clips, 'Scene');
+        const action = mixer.clipAction(clip)
+        action.play()
     })
 
     const light = new THREE.DirectionalLight({color:0xffffff,intensity:1});
     light.position.set(-1,2,4);
     camera.add(light);
 
+    window.addEventListener('click',function(){
+        console.log(camera.position)
+        gsap.to(camera.position, {
+            z:-900,
+            // onUpdate: function() {
+              
+            // }
+        })
+    })
+    window.addEventListener('dblclick', function(){
+        gsap.to(camera.position, {
+            x: -430,
+            y: 261,
+            z: -764
+        })
+    })
+
+    const clock = new THREE.Clock()
     function render(time){
+        
         renderer.render(scene,camera);
         requestAnimationFrame(render);
+
+        if(mixer) {
+            mixer.update(clock.getDelta())
+        }
     }
     requestAnimationFrame(render);
 
@@ -49,7 +80,7 @@ function main(){
         const halffov = THREE.MathUtils.degToRad(camera.fov * 0.5);
         const distance = halfSizeModel / Math.tan(halffov);
     
-        const direction = (new THREE.Vector3()).subVectors(camera.position, centerBox).multiply(new THREE.Vector3(0,0,10)).normalize();
+        const direction = (new THREE.Vector3()).subVectors(camera.position, centerBox).multiply(new THREE.Vector3(3,0,13)).normalize();
     
         const position = direction.multiplyScalar(distance).add(centerBox);
         camera.position.copy(position);
@@ -68,5 +99,5 @@ function main(){
         camera.updateProjectionMatrix();
     }
 
-    const control = new OrbitControls(camera,renderer.domElement);
+    // const control = new OrbitControls(camera,renderer.domElement);
 }
