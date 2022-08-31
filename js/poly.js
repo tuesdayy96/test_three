@@ -19,12 +19,12 @@ function main(){
     const height = canvas.clientHeight;
     const near = 0.1;
     const far = 1000;
-    camera = new THREE.PerspectiveCamera(fov,width/height,near,far);
-    camera.position.set(0,0,10);
+    const camera = new THREE.PerspectiveCamera(fov,width/height,near,far);
+    // camera.position.set(10,0,10);
     scene.add(camera)
 
     const loader = new GLTFLoader();
-    loader.load('../data/forest.gltf',(gltf)=>{
+    loader.load('../data/tvs.glb',(gltf)=>{
         const model = gltf.scene;
         scene.add(model);
 
@@ -49,7 +49,7 @@ function main(){
         const halffov = THREE.MathUtils.degToRad(camera.fov * 0.5);
         const distance = halfSizeModel / Math.tan(halffov);
     
-        const direction = (new THREE.Vector3()).subVectors(camera.position, centerBox).multiply(new THREE.Vector3(15,-0.5,10)).normalize();
+        const direction = (new THREE.Vector3()).subVectors(camera.position, centerBox).multiply(new THREE.Vector3(0,0,10)).normalize();
     
         const position = direction.multiplyScalar(distance).add(centerBox);
         camera.position.copy(position);

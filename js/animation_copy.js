@@ -4,7 +4,7 @@ import {OrbitControls} from 'OrbitControls';
 
 
 let mixer,currentAction,animationMap,animationName,previousTime;
-let model, x, y, z;
+let shark;
 
 main();
 function main(){
@@ -28,15 +28,15 @@ function main(){
     camera.position.set(0,120,600);
     scene.add(camera)
 
-    function changeAnimation(animationName){
-        const previousAcition = currentAction;
-        currentAction = animationMap[animationName];
+    // function changeAnimation(animationName){
+    //     const previousAcition = currentAction;
+    //     currentAction = animationMap[animationName];
 
-        if(previousAcition !== currentAction){
-            previousAcition.fadeOut(0.5);
-            currentAction.reset().fadeIn(0.5).play();
-        }
-    }
+    //     if(previousAcition !== currentAction){
+    //         previousAcition.fadeOut(0.5);
+    //         currentAction.reset().fadeIn(0.5).play();
+    //     }
+    // }
 
     function animations(gltf){
         const shark = gltf.scene;
@@ -45,55 +45,84 @@ function main(){
         mixer = new THREE.AnimationMixer(shark);
         animationMap = {};
 
-        const btnsDIV = document.querySelector('.btns');
         gltfAnimation.forEach(animationClip => {
             const name = animationClip.name;
-            const btns = document.createElement('div');
-            btns.classList.add('on');
-            btns.innerText = name;
-            btnsDIV.appendChild(btns);
-
             const animationAction = mixer.clipAction(animationClip);
             animationMap[name] = animationAction;
-
-            btns.addEventListener('click',()=>{
-                animationName = btns.innerHTML;
-                changeAnimation(animationName);
-            })
         })
 
         currentAction = animationMap['Swimming01.001'];
         currentAction.play(); 
     }
 
+    function dumpObject(obj, lines = [], isLast = true, prefix = '') {
+        const localPrefix = isLast ? '└─' : '├─';
+        lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
+        const newPrefix = prefix + (isLast ? '  ' : '│ ');
+        const lastNdx = obj.children.length - 1;
+        obj.children.forEach((child, ndx) => {
+          const isLast = ndx === lastNdx;
+          dumpObject(child, lines, isLast, newPrefix);
+        });
+        return lines;
+      }
+
+    const url = {
+        src : '../data/white_pointer.glb',
+        removed : 'object_57'
+    }
+
     const loader = new GLTFLoader();
-    loader.load('./data/white_pointer.glb',(gltf)=>{
-        model = gltf.scene;
+    loader.load( url.src, (gltf)=>{
+        const model = gltf.scene;
+        shark = model;
+        // const removemodelobj = model.getObjectByName('Jaw_02_end_030');
+        // removemodelobj.removeFromParent();
+
         scene.add(model);
 
         animations(gltf);
+        console.log(dumpObject(model).join('\n'));
     })
 
     const path = new THREE.SplineCurve( [
-        new THREE.Vector2( 200, 100 ),
-        new THREE.Vector2( 100, 100 ),
-        new THREE.Vector2( 100, 200 ),
-        new THREE.Vector2( -100, 200 ),
-        new THREE.Vector2( -100, 100 ),
-        new THREE.Vector2( -200, 100 ),
-        new THREE.Vector2( -200, -100 ),
-        new THREE.Vector2( -100, -100 ),
-        new THREE.Vector2( -100, -200 ),
-        new THREE.Vector2( 100, -200 ),
-        new THREE.Vector2( 100, -100 ),
-        new THREE.Vector2( 200, -100 ),
-        new THREE.Vector2( 200, 100 ),
+        new THREE.Vector3( 200, 100 ),
+        new THREE.Vector3( 100, 100 ),
+        new THREE.Vector3( 100, 200 ),
+        new THREE.Vector3( -100, 200 ),
+        new THREE.Vector3( -100, 100 ),
+        new THREE.Vector3( -200, 100 ),
+        new THREE.Vector3( -200, -100 ),
+        new THREE.Vector3( -100, -100 ),
+        new THREE.Vector3( -100, -200 ),
+        new THREE.Vector3( 100, -200 ),
+        new THREE.Vector3( 100, -100 ),
+        new THREE.Vector3( 200, -100 ),
+        new THREE.Vector3( 600, 100 ),
     ]);
+
+    // const path = new THREE.CatmullRomCurve3( [
+    //     new THREE.Vector3( 0, 300, - 300 ), new THREE.Vector3( 300, 0, - 300 ),
+    //     new THREE.Vector3( 600, 0, 0 ), new THREE.Vector3( 600, 0, 300 ),
+    //     new THREE.Vector3( 900, 0, 600 ), new THREE.Vector3( 600, 0, 900 ),
+    //     new THREE.Vector3( 300, 0, 900 ), new THREE.Vector3( 0, 0, 900 ),
+    //     new THREE.Vector3( - 300, 300, 900 ), new THREE.Vector3( - 300, 600, 900 ),
+    //     new THREE.Vector3( 0, 900, 900 ), new THREE.Vector3( 300, 900, 900 ),
+    //     new THREE.Vector3( 400, 750, 600 ), new THREE.Vector3( 300, 900, 300 ),
+    //     new THREE.Vector3( 0, 900, 300 ), new THREE.Vector3( - 300, 600, 300 ),
+    //     new THREE.Vector3( -300, 300, 300 ), new THREE.Vector3( 0, 0, 300 ),
+    //     new THREE.Vector3( 200, - 300, 300 ), new THREE.Vector3( 600, - 450, 300 ),
+    //     new THREE.Vector3( 300, - 440, 300 ), new THREE.Vector3( 1200, - 400, 300 ),
+    //     new THREE.Vector3( 500, - 450, 300 ), new THREE.Vector3( 900, 0, 300 ),
+    //     new THREE.Vector3( 700, 0, 0 ), new THREE.Vector3( 800, 0, 0 ),
+    //     new THREE.Vector3( 900, 0, 0 ), new THREE.Vector3( 1000, 0, 0 )
+    // ] );
+
     const points = path.getPoints( 130 );
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
     const material = new THREE.LineBasicMaterial({color:0xff0000});
     const pathLine = new THREE.Line(geometry,material);
-    pathLine.rotation.x = Math.PI * .5;
+    pathLine.rotation.x = Math.PI *.5;
     scene.add(pathLine);
 
     // const boxgeometry = new THREE.BoxGeometry(20,20,60);
@@ -130,8 +159,8 @@ function main(){
         path.getPointAt(boxTime % 1, boxPosition);
         path.getPointAt((boxTime + 0.01) % 1, NextBoxPosition);
 
-        model.position.set(boxPosition.x, 0, boxPosition.y);
-        model.lookAt(NextBoxPosition.x,0,NextBoxPosition.y);
+        shark.position.set(boxPosition.x, 0, boxPosition.y);
+        shark.lookAt(NextBoxPosition.x,0,NextBoxPosition.y);
     }
     requestAnimationFrame(render);
 
