@@ -14,7 +14,7 @@ function main(){
 
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xffffff);
+    // scene.background = new THREE.Color(0xffffff);
 
     
     const fov = 45;
@@ -71,6 +71,22 @@ function main(){
 
         animations(gltf);
     })
+
+    const plane = new THREE.Mesh(
+        new THREE.PlaneGeometry(500,500),
+        new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            side: THREE.DoubleSide
+        })
+    )
+    scene.add(plane)
+    plane.rotation.x = Math.PI * 0.5;
+    plane.position.y = -100;
+
+    const grid = new THREE.GridHelper(500,20);
+    scene.add(grid)
+    grid.position.y = -100;
+
 
     const light = new THREE.DirectionalLight({color:0x000000,intensity:1});
     light.position.set(-1,2,4);
