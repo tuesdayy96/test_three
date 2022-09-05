@@ -3,16 +3,17 @@ import { FontLoader } from 'FontLoader'
 import { TextGeometry } from 'TextGeometry'
 import { OrbitControls } from 'OrbitControls'
 
+const Abc = [];
 let txt,obj3d;
 class Particle {
     constructor(scene, geometry, material, x, y, z){
         txt = new THREE.Mesh(geometry, material)
         obj3d = new THREE.Object3D()
-        txt.position.set(x*1.1, y*0.7, z)
+        txt.position.set(x*1.1, y*0.9, z)
         obj3d.add(txt)
-        txt.rotation.x = THREE.MathUtils.degToRad(-15)
+        Abc.push(txt)
+        txt.rotation.x = THREE.MathUtils.degToRad(-5)
         obj3d.rotation.x = THREE.MathUtils.degToRad(-70)
-
         obj3d.position.set(-(60/2), 0,((60*0.7) / 2))
         scene.add(obj3d)
     }
@@ -39,12 +40,9 @@ function main() {
     camera.position.set(-25, 64, 65);
     scene.add(camera);
 
-    const spot = new THREE.SpotLight(0xff0551)
-    const helper = new THREE.SpotLightHelper(spot)
-    // scene.add(helper)
+    const spot = new THREE.SpotLight(0xffffff)
     spot.position.set(0, 500, 100);
     spot.angle = 0.5
-    // scene.add(spot)
 
     const light = new THREE.DirectionalLight({ color: 0xffffff, intencity: 1});
     scene.add(light);
@@ -56,7 +54,7 @@ function main() {
     ]
 
     const loader = new FontLoader();
-    loader.load('data/Terminal-Grotesque_Regular.json',(font)=>{
+    loader.load('data/fonts/Millimetre-Extrablack_Regular.json',(font)=>{
         const material = new THREE.MeshStandardMaterial({
             color: 0xffffff
         })
@@ -64,11 +62,11 @@ function main() {
         for(let x = 0; x < 60; x += 6){
             for(let y = 0; y < 60; y += 6){
                     let ran = Math.floor(Math.random()*(letters.length-1))
-                    for(let z = 0; z < 3; z += 0.5){
+                    for(let z = 0; z < 10; z++){
                         const geometry = new TextGeometry(letters[ran], {
                             font: font,
                             size: 5,
-                            height: 0.05,
+                            height: 0.1,
                         })
 
                         geometry.center();
@@ -81,21 +79,27 @@ function main() {
 
     const mousePosition = new THREE.Vector2();
     const raycaster = new THREE.Raycaster();
-
     let intersects;
-
-    window.addEventListener('mousemove', e=>{
+    window.addEventListener('mousemove', e =>{
         mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
         mousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    })
 
+    window.addEventListener('mouseleave', () =>{
+        mousePosition.x = -100000;
+        mousePosition.y = -100000;
     })
 
     const controls = new OrbitControls(camera, renderer.domElement);
 
     function render(time) {
         renderer.render(scene, camera)
-        requestAnimationFrame(render)
         controls.update()
+        requestAnimationFrame(render)
+
+        raycaster.setFromCamera(mousePosition, camera);
+        intersects = raycaster.intersectObjects(scene.children);
+
     }
     requestAnimationFrame(render)
 
